@@ -11,13 +11,13 @@ import (
 
 var preload = `
 class WebView2Bridge extends EventTarget {
+	#handlers = {};
   constructor() {
 		super()
-    this.handlers = {};
 
     window.addEventListener("message", (event) => {
       if (event.data.composer === "main-thread") {
-        const handler = this.handlers[event.data.id];
+        const handler = this.#handlers[event.data.id];
 				this.dispatchEvent(new CustomEvent("message", { detail: event }))
 
         if (handler) {
@@ -28,7 +28,7 @@ class WebView2Bridge extends EventTarget {
           }
         }
 
-				delete this.handlers[event.data.id]
+				delete this.#handlers[event.data.id]
       }
     });
   }
@@ -44,7 +44,7 @@ class WebView2Bridge extends EventTarget {
         const id = uuidv4();
 
         window.chrome.webview.postMessage(JSON.stringify({ id, request, params: JSON.stringify(params) }));
-        this.handlers[id] = { resolve, reject };
+        this.#handlers[id] = { resolve, reject };
       } else {
         console.warn("There is no webview context");
       }
@@ -102,7 +102,7 @@ func main() {
 		log.Fatalln("Failed to load webview.")
 	}
 	defer w.Destroy()
-	w.SetSize(800, 600, webview2.HintFixed)
+	w.SetSize(800, 600, webview2.HintNone)
 	w.Navigate("https://en.m.wikipedia.org/wiki/Main_Page")
 	w.Init(preload)
 	w.Run()
