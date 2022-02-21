@@ -54,6 +54,7 @@ class WebView2Bridge extends EventTarget {
   }
 }
 
+window.WebView2Bridge = WebView2Bridge
 `
 
 func msgcb(msg string, w webview2.WebView) {
