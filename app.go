@@ -11,24 +11,24 @@ import (
 
 var preload = `
 class WebView2Bridge extends EventTarget {
-	#handlers = {};
+  #handlers = {};
   constructor() {
-		super()
+    super();
 
     window.addEventListener("message", (event) => {
       if (event.data.composer === "main-thread") {
         const handler = this.#handlers[event.data.id];
-				this.dispatchEvent(new CustomEvent("message", { detail: event }))
+        this.dispatchEvent(new CustomEvent("message", { detail: event }));
 
         if (handler) {
-          if(event.data.error) {
+          if (event.data.error) {
             handler.reject(event.data.payload);
-          }else {
+          } else {
             handler.resolve(event.data.payload);
           }
         }
 
-				delete this.#handlers[event.data.id]
+        delete this.#handlers[event.data.id];
       }
     });
   }
@@ -43,7 +43,9 @@ class WebView2Bridge extends EventTarget {
         };
         const id = uuidv4();
 
-        window.chrome.webview.postMessage(JSON.stringify({ id, request, params: JSON.stringify(params) }));
+        window.chrome.webview.postMessage(
+          JSON.stringify({ id, request, params: JSON.stringify(params) })
+        );
         this.#handlers[id] = { resolve, reject };
       } else {
         console.warn("There is no webview context");
